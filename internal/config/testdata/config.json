@@ -1,0 +1,14 @@
+{
+  "agent_id": "test_id",
+  "server_url": "ws://localhost:8080",
+  "reader_timeout": "5s",
+  "writer_timeout": "5s",
+  "ping_interval": "5s",
+  "pong_timeout": "5s",
+  "max_retry_count": 10,
+  "max_timeout_count": 10,
+  "retry_interval": "5s",
+  "max_retry_interval": "30s",
+  "worker_count": 10,
+  "log_level": "debug"
+}
