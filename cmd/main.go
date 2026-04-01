@@ -6,12 +6,12 @@ import (
 	"log/slog"
 	"os"
 
-	"github.com/orimono/hari/internal/collector"
-	"github.com/orimono/hari/internal/collector/subsystem"
-	"github.com/orimono/hari/internal/config"
-	"github.com/orimono/hari/internal/logger"
-	"github.com/orimono/hari/internal/reporter"
-	"github.com/orimono/hari/internal/ws"
+	"github.com/orimono/shutter/internal/collector"
+	"github.com/orimono/shutter/internal/collector/subsystem"
+	"github.com/orimono/shutter/internal/config"
+	"github.com/orimono/shutter/internal/logger"
+	"github.com/orimono/shutter/internal/reporter"
+	"github.com/orimono/shutter/internal/ws"
 	"github.com/orimono/ito"
 )
 

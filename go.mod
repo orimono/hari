@@ -1,4 +1,4 @@
-module github.com/orimono/hari
+module github.com/orimono/shutter
 
 go 1.25.8
 

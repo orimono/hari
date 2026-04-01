@@ -7,9 +7,9 @@ import (
 	"time"
 
 	"github.com/gorilla/websocket"
-	"github.com/orimono/hari/internal/config"
-	"github.com/orimono/hari/internal/dispatcher"
-	"github.com/orimono/hari/internal/protocol"
+	"github.com/orimono/shutter/internal/config"
+	"github.com/orimono/shutter/internal/dispatcher"
+	"github.com/orimono/shutter/internal/protocol"
 )
 
 type Session struct {

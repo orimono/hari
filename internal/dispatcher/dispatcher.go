@@ -3,7 +3,7 @@ package dispatcher
 import (
 	"log/slog"
 
-	"github.com/orimono/hari/internal/protocol"
+	"github.com/orimono/shutter/internal/protocol"
 )
 
 func Dispatch(msg *protocol.Message) {

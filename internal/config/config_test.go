@@ -4,7 +4,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/orimono/hari/internal/config"
+	"github.com/orimono/shutter/internal/config"
 )
 
 func TestConfig(t *testing.T) {

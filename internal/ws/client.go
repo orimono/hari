@@ -5,8 +5,8 @@ import (
 	"log/slog"
 
 	"github.com/gorilla/websocket"
-	"github.com/orimono/hari/internal/config"
-	"github.com/orimono/hari/internal/protocol"
+	"github.com/orimono/shutter/internal/config"
+	"github.com/orimono/shutter/internal/protocol"
 )
 
 type Client struct {
