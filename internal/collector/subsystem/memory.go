@@ -23,15 +23,15 @@ func (c *MemoryCollector) Capability() ito.Capability {
 }
 
 func (c *MemoryCollector) Interval() time.Duration {
-	return time.Second * 2
+	return time.Second * 30
 }
 
 func (c *MemoryCollector) Collect(ctx context.Context) (any, error) {
 	v, err := mem.VirtualMemory()
 	if err != nil {
-		slog.Error("Failed to get virtual memory data", "error", err)
+		return nil, err
 	}
 
-	slog.Info("Collected memory data.", "data", v)
+	slog.Debug("collected memory", "used_percent", v.UsedPercent)
 	return ito.MemoryMetrics{}, nil
 }
