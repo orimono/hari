@@ -25,6 +25,7 @@ type Config struct {
 	MaxRetryInterval Duration        `json:"max_retry_interval"`
 	WorkerCount      int             `json:"worker_count"`
 	LogLevel         logger.LogLevel `json:"log_level"`
+	Tags             []string        `json:"tags"`
 }
 
 func (d *Duration) UnmarshalJSON(b []byte) error {

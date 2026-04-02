@@ -5,14 +5,15 @@ import (
 	"encoding/json"
 	"log/slog"
 	"os"
+	"runtime"
 
+	"github.com/orimono/ito"
 	"github.com/orimono/shutter/internal/collector"
 	"github.com/orimono/shutter/internal/collector/subsystem"
 	"github.com/orimono/shutter/internal/config"
 	"github.com/orimono/shutter/internal/logger"
 	"github.com/orimono/shutter/internal/reporter"
 	"github.com/orimono/shutter/internal/ws"
-	"github.com/orimono/ito"
 )
 
 func main() {
@@ -21,39 +22,47 @@ func main() {
 
 	cfg := config.MustLoad()
 	logger.Init(cfg.LogLevel)
-	client := ws.NewClient(cfg)
-	go client.Run(ctx)
-
-	reporter := reporter.NewReporter(client)
-
-	go func() {
-		data, err := os.ReadFile("./testdata.json")
-
-		if err != nil {
-			slog.Error("Failed to read JSON from file")
-			return
-		}
-
-		var joinPacket = &ito.JoinPacket{}
-		json.Unmarshal(data, joinPacket)
-
-		joinPacket.NodeID, err = ito.GenerateNodeID(joinPacket.NodeID)
-		if err != nil {
-			slog.Error("Failed to read JSON from file")
-			return
-		}
-
-		modifiedData, marshalErr := json.Marshal(joinPacket)
-		if marshalErr != nil {
-			slog.Error("Failed to marshal")
-			return
-		}
-		reporter.Send(modifiedData)
-	}()
 
 	manager := collector.NewManager()
 	manager.AddCollector(&subsystem.MemoryCollector{})
+
+	client := ws.NewClient(cfg)
+	go client.Run(ctx)
+
+	rep := reporter.NewReporter(client)
+
+	go func() {
+		hostname, err := os.Hostname()
+		if err != nil {
+			slog.Error("failed to get hostname", "err", err)
+			return
+		}
+
+		joinPacket := &ito.JoinPacket{
+			Hostname:     hostname,
+			OS:           runtime.GOOS,
+			Arch:         runtime.GOARCH,
+			Tags:         cfg.Tags,
+			TaskManifest: manager.Manifest(),
+		}
+
+		joinPacket.NodeID, err = ito.GenerateNodeID("")
+		if err != nil {
+			slog.Error("failed to generate node ID", "err", err)
+			return
+		}
+
+		data, err := json.Marshal(joinPacket)
+		if err != nil {
+			slog.Error("failed to marshal JoinPacket", "err", err)
+			return
+		}
+
+		<-client.Ready()
+		rep.Send(data)
+	}()
+
 	go manager.Start(ctx)
 
-	select {}
+	<-ctx.Done()
 }

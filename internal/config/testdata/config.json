@@ -10,5 +10,6 @@
   "retry_interval": "5s",
   "max_retry_interval": "30s",
   "worker_count": 10,
-  "log_level": "debug"
+  "log_level": "debug",
+  "tags": ["happy"]
 }

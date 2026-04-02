@@ -31,6 +31,14 @@ func (m *Manager) AddCollector(c Collector) {
 	m.collectors = append(m.collectors, c)
 }
 
+func (m *Manager) Manifest() map[string]ito.Capability {
+	manifest := make(map[string]ito.Capability, len(m.collectors))
+	for _, c := range m.collectors {
+		manifest[c.Name()] = c.Capability()
+	}
+	return manifest
+}
+
 func (m *Manager) Start(ctx context.Context) {
 	var wg sync.WaitGroup
 

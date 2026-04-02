@@ -15,6 +15,13 @@ func (c *MemoryCollector) Name() string {
 	return "mem"
 }
 
+func (c *MemoryCollector) Capability() ito.Capability {
+	return ito.Capability{
+		Version:   "0.1.0",
+		Platforms: []string{"linux", "darwin", "windows"},
+	}
+}
+
 func (c *MemoryCollector) Interval() time.Duration {
 	return time.Second * 2
 }
