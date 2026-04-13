@@ -1,4 +1,4 @@
-package collector
+package capability
 
 import (
 	"context"
@@ -48,6 +48,15 @@ func (m *Manager) AddExecutor(e Executor) {
 		slog.Info("skipping executor: unsupported platform", "name", e.Name(), "platform", runtime.GOOS)
 		return
 	}
+	m.executors = append(m.executors, e)
+}
+
+func (m *Manager) Executors() []Executor {
+	return m.executors
+}
+
+// Register adds an executor at runtime (e.g. a dynamically loaded script executor).
+func (m *Manager) Register(e Executor) {
 	m.executors = append(m.executors, e)
 }
 

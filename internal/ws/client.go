@@ -10,6 +10,7 @@ import (
 
 	"github.com/gorilla/websocket"
 	"github.com/orimono/shutter/internal/config"
+	"github.com/orimono/shutter/internal/dispatcher"
 	"github.com/orimono/shutter/internal/protocol"
 	"github.com/orimono/shutter/internal/util"
 )
@@ -17,16 +18,18 @@ import (
 var ErrNoSession = errors.New("no active session")
 
 type Client struct {
-	cfg     *config.Config
-	mu      sync.RWMutex
-	session *Session
-	ready   chan struct{}
+	cfg        *config.Config
+	dispatcher *dispatcher.Dispatcher
+	mu         sync.RWMutex
+	session    *Session
+	ready      chan struct{}
 }
 
-func NewClient(cfg *config.Config) *Client {
+func NewClient(cfg *config.Config, d *dispatcher.Dispatcher) *Client {
 	return &Client{
-		cfg:   cfg,
-		ready: make(chan struct{}, 1),
+		cfg:        cfg,
+		dispatcher: d,
+		ready:      make(chan struct{}, 1),
 	}
 }
 
@@ -48,7 +51,7 @@ func (c *Client) Run(ctx context.Context) {
 			continue
 		}
 
-		s := NewSession(conn, c.cfg)
+		s := NewSession(conn, c.cfg, c.dispatcher)
 		c.mu.Lock()
 		c.session = s
 		c.mu.Unlock()

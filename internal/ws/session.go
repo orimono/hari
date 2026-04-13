@@ -13,19 +13,21 @@ import (
 )
 
 type Session struct {
-	conn      *websocket.Conn
-	cfg       *config.Config
-	send      chan protocol.Message
-	done      chan struct{}
-	closeOnce sync.Once
+	conn       *websocket.Conn
+	cfg        *config.Config
+	dispatcher *dispatcher.Dispatcher
+	send       chan protocol.Message
+	done       chan struct{}
+	closeOnce  sync.Once
 }
 
-func NewSession(conn *websocket.Conn, cfg *config.Config) *Session {
+func NewSession(conn *websocket.Conn, cfg *config.Config, d *dispatcher.Dispatcher) *Session {
 	return &Session{
-		conn: conn,
-		cfg:  cfg,
-		send: make(chan protocol.Message, 100),
-		done: make(chan struct{}),
+		conn:       conn,
+		cfg:        cfg,
+		dispatcher: d,
+		send:       make(chan protocol.Message, 100),
+		done:       make(chan struct{}),
 	}
 }
 
@@ -50,18 +52,15 @@ func (s *Session) readerLoop(ctx context.Context) {
 		default:
 		}
 
-		messageType, data, err := s.conn.ReadMessage()
+		_, data, err := s.conn.ReadMessage()
 		if err != nil {
 			slog.Warn("read failed", "error", err)
 			return
 		}
 
-		// msg, err := protocol.Decode(data)
-		// if err != nil {
-		// 	slog.Error("Failed to decode message from data", "error", err)
-		// }
-
-		dispatcher.Dispatch(&protocol.Message{Type: messageType, Data: data})
+		s.dispatcher.Handle(ctx, data, func(msg protocol.Message) {
+			s.send <- msg
+		})
 	}
 }
 
@@ -70,10 +69,8 @@ func (s *Session) writerLoop(ctx context.Context) {
 		select {
 		case <-ctx.Done():
 			return
-
 		case <-s.done:
 			return
-
 		case msg := <-s.send:
 			s.conn.SetWriteDeadline(time.Now().Add(time.Duration(s.cfg.WriterTimeout)))
 			if err := s.conn.WriteMessage(msg.Type, msg.Data); err != nil {

@@ -26,6 +26,7 @@ type Config struct {
 	WorkerCount      int             `json:"worker_count"`
 	LogLevel         logger.LogLevel `json:"log_level"`
 	Tags             []string        `json:"tags"`
+	StorePath        string          `json:"store_path"`
 }
 
 func (d *Duration) UnmarshalJSON(b []byte) error {

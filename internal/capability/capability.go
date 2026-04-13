@@ -1,7 +1,8 @@
-package collector
+package capability
 
 import (
 	"context"
+	"encoding/json"
 	"time"
 
 	"github.com/orimono/ito"
@@ -23,5 +24,5 @@ type Collector interface {
 // Executor runs on-demand tasks dispatched by the server.
 type Executor interface {
 	Capable
-	Execute(ctx context.Context, params map[string]string) (any, error)
+	Execute(ctx context.Context, params json.RawMessage) (any, error)
 }

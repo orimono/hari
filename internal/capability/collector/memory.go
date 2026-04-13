@@ -1,4 +1,4 @@
-package subsystem
+package collector
 
 import (
 	"context"
