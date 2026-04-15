@@ -82,13 +82,13 @@ func (d *Dispatcher) handleExecutorRegister(ctx context.Context, payload json.Ra
 	var reg ito.ExecutorRegistration
 	if err := json.Unmarshal(payload, &reg); err != nil {
 		slog.Error("failed to unmarshal executor registration", "err", err)
-		d.sendRegistered(reply, false, "invalid payload: "+err.Error())
+		d.sendRegistered(reply, reg.CorrelationID, false, "invalid payload: "+err.Error())
 		return
 	}
 
 	if err := d.store.Save(ctx, reg); err != nil {
 		slog.Error("failed to persist executor", "kind", reg.Kind, "err", err)
-		d.sendRegistered(reply, false, "store error: "+err.Error())
+		d.sendRegistered(reply, reg.CorrelationID, false, "store error: "+err.Error())
 		return
 	}
 
@@ -97,7 +97,7 @@ func (d *Dispatcher) handleExecutorRegister(ctx context.Context, payload json.Ra
 	d.executors[exec.Name()] = exec
 
 	slog.Info("executor registered", "kind", reg.Kind)
-	d.sendRegistered(reply, true, "")
+	d.sendRegistered(reply, reg.CorrelationID, true, "")
 }
 
 func (d *Dispatcher) sendResult(reply func(protocol.Message), taskID string, success bool, output json.RawMessage, errMsg string) {
@@ -114,14 +114,11 @@ func (d *Dispatcher) sendResult(reply func(protocol.Message), taskID string, suc
 	reply(protocol.Message{Type: websocket.TextMessage, Data: data})
 }
 
-func (d *Dispatcher) sendRegistered(reply func(protocol.Message), success bool, errMsg string) {
-	type registeredResult struct {
-		Success bool   `json:"success"`
-		Error   string `json:"error,omitempty"`
-	}
-	data, err := ito.Encode(ito.KindExecutorRegistered, registeredResult{
-		Success: success,
-		Error:   errMsg,
+func (d *Dispatcher) sendRegistered(reply func(protocol.Message), correlationID string, success bool, errMsg string) {
+	data, err := ito.Encode(ito.KindExecutorRegistered, ito.ExecutorRegisteredResult{
+		CorrelationID: correlationID,
+		Success:       success,
+		Error:         errMsg,
 	})
 	if err != nil {
 		slog.Error("failed to encode registered response", "err", err)
